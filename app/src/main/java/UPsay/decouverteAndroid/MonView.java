@@ -7,6 +7,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -20,6 +24,11 @@ public class MonView extends View {
     float tailleTexte = 0;
     float x1, x2, y1, y2;
 
+    /* accéléromètre : inclinaison horizontale, verticale et force */
+    private int pencheH, pencheV, penche;
+    /* position du smiley, déplacé par l'inclinaison du téléphone */
+    float xImg = 200, yImg = 200;
+
     /* timer : run() est appelée toutes les 100 ms */
     Handler timerHandler = new Handler();
     Runnable updateTimerThread = new Runnable() {
@@ -30,6 +39,9 @@ public class MonView extends View {
             if (tailleTexte > 150) {
                 tailleTexte = 0;
             }
+            /* déplacer le smiley selon l'inclinaison, sans sortir de la vue */
+            xImg = Math.max(0, Math.min(getWidth() - 200, xImg + pencheH * 5));
+            yImg = Math.max(0, Math.min(getHeight() - 200, yImg + pencheV * 5));
             invalidate();   // appel de onDraw pour redessiner
         }
     };
@@ -89,6 +101,26 @@ public class MonView extends View {
             }
         };
         setOnTouchListener(onTouchListener);
+
+        /* accéléromètre */
+        Sensor accelerometre;
+        SensorManager m = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+        accelerometre = m.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+        final SensorEventListener mSensorEventListener = new SensorEventListener() {
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int accuracy) {
+            }
+
+            @Override
+            public void onSensorChanged(SensorEvent sensorEvent) {
+                /* que faire en cas d'évènement sur le capteur ? */
+                pencheH = -(int) (sensorEvent.values[0]);
+                pencheV = (int) (sensorEvent.values[1]);
+                penche = pencheH * pencheH + pencheV * pencheV;
+            }
+        };
+        m.registerListener(mSensorEventListener, accelerometre, SensorManager.SENSOR_DELAY_UI);
     }
 
     public void setXYText(float x, float y) {
@@ -115,6 +147,6 @@ public class MonView extends View {
         String texte = "Bonjour MONDE";
         canvas.drawText(texte, xText, yText, p);
         /* afficher l'image découpée à la taille 200x200, à partir du point (200,200) */
-        canvas.drawBitmap(b, null, new Rect(200, 200, 400, 400), p);
+        canvas.drawBitmap(b, null, new Rect((int) xImg, (int) yImg, (int) xImg + 200, (int) yImg + 200), p);
     }
 }
