@@ -9,6 +9,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     public void dessiner(View view) {
         TextView editText = (TextView) findViewById(R.id.monTexte);
         editText.setText("YES !!!");
+        Toast.makeText(this, "Bouton cliqué", Toast.LENGTH_SHORT).show();
         // setContentView(R.layout.gestionaire2); // désactivé pour voir MonView (partie B)
     }
 }

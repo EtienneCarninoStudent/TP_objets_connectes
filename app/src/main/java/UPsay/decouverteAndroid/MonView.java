@@ -8,18 +8,35 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 public class MonView extends View {
 
     Bitmap b;
+    float xText, yText;
 
     public MonView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        setXYText(600, 600);
         /* charger l'image depuis res/drawable */
         b = BitmapFactory.decodeResource(getResources(), R.drawable.smiley);
         /* découper un rectangle de 50x50 positionné en (25,25) : le centre du smiley */
         b = Bitmap.createBitmap(b, 25, 25, 50, 50);
+    }
+
+    public void setXYText(float x, float y) {
+        xText = x;
+        yText = y;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        xText = event.getX();
+        yText = event.getY();
+        /* forcer le rafraîchissement de l'écran */
+        invalidate();
+        return false;
     }
 
     @Override
@@ -39,7 +56,7 @@ public class MonView extends View {
         p.setTextAlign(Paint.Align.CENTER);
         /* dessiner le texte en positionnant son origine au centre du View */
         String texte = "Bonjour MONDE";
-        canvas.drawText(texte, getWidth() / 2, getHeight() / 2, p);
+        canvas.drawText(texte, xText, yText, p);
         /* afficher l'image découpée à la taille 200x200, à partir du point (200,200) */
         canvas.drawBitmap(b, null, new Rect(200, 200, 400, 400), p);
     }
