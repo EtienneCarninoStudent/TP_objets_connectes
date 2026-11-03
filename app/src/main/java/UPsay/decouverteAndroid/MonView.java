@@ -9,6 +9,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -17,6 +18,7 @@ public class MonView extends View {
     Bitmap b;
     float xText, yText;
     float tailleTexte = 0;
+    float x1, x2, y1, y2;
 
     /* timer : run() est appelée toutes les 100 ms */
     Handler timerHandler = new Handler();
@@ -40,20 +42,58 @@ public class MonView extends View {
         b = BitmapFactory.decodeResource(getResources(), R.drawable.smiley);
         /* découper un rectangle de 50x50 positionné en (25,25) : le centre du smiley */
         b = Bitmap.createBitmap(b, 25, 25, 50, 50);
+
+        /* remplace onTouchEvent : on s'abonne aux évènements tactiles */
+        OnTouchListener onTouchListener = new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                float dx, dy;
+                String direction;
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        /* point de contact */
+                        x1 = event.getX();
+                        y1 = event.getY();
+                        Log.i("pacman", "appuyé");
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        /* le texte suit le doigt */
+                        xText = event.getX();
+                        yText = event.getY();
+                        break;
+                    case MotionEvent.ACTION_UP: {
+                        /* point de relâchement */
+                        x2 = event.getX();
+                        y2 = event.getY();
+                        dx = x2 - x1;
+                        dy = y2 - y1;
+                        /* dx et dy donnent la direction du mouvement */
+                        if (Math.abs(dx) > Math.abs(dy)) {
+                            if (dx > 0)
+                                direction = "right";
+                            else
+                                direction = "left";
+                        } else {
+                            if (dy > 0)
+                                direction = "down";
+                            else
+                                direction = "up";
+                        }
+                        Log.i("pacman", "lâché " + direction);
+                        Log.i("pacman", "dx = " + dx + "; dy = " + dy);
+                        break;
+                    }
+                }
+                invalidate();
+                return true;    // l'évènement a été traité
+            }
+        };
+        setOnTouchListener(onTouchListener);
     }
 
     public void setXYText(float x, float y) {
         xText = x;
         yText = y;
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        xText = event.getX();
-        yText = event.getY();
-        /* forcer le rafraîchissement de l'écran */
-        invalidate();
-        return false;
     }
 
     @Override
