@@ -18,14 +18,16 @@
             android:id="@+id/monTexte"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hello World!" />
+            android:text="Hello World!"
+            tools:ignore="VisualLintSystemUi" />
 
         <Button
             android:id="@+id/button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="dessiner"
-            android:text="@string/button" />
+            android:text="@string/button"
+            tools:ignore="VisualLintSystemUi" />
 
     </TableRow>
 

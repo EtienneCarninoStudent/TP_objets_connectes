@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,10 +16,26 @@ public class MonView extends View {
 
     Bitmap b;
     float xText, yText;
+    float tailleTexte = 0;
+
+    /* timer : run() est appelée toutes les 100 ms */
+    Handler timerHandler = new Handler();
+    Runnable updateTimerThread = new Runnable() {
+        public void run() {
+            timerHandler.postDelayed(this, 100);
+            /* faire grandir le texte à partir de 0, puis recommencer */
+            tailleTexte += 5;
+            if (tailleTexte > 150) {
+                tailleTexte = 0;
+            }
+            invalidate();   // appel de onDraw pour redessiner
+        }
+    };
 
     public MonView(Context context, AttributeSet attrs) {
         super(context, attrs);
         setXYText(600, 600);
+        timerHandler.postDelayed(updateTimerThread, 10);
         /* charger l'image depuis res/drawable */
         b = BitmapFactory.decodeResource(getResources(), R.drawable.smiley);
         /* découper un rectangle de 50x50 positionné en (25,25) : le centre du smiley */
@@ -51,7 +68,7 @@ public class MonView extends View {
         /* définir une autre couleur pour dessiner un texte */
         p.setColor(Color.GREEN);
         /* définir la taille du texte */
-        p.setTextSize(100);
+        p.setTextSize(tailleTexte);
         /* définir le centre du texte comme étant son origine */
         p.setTextAlign(Paint.Align.CENTER);
         /* dessiner le texte en positionnant son origine au centre du View */
